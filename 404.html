@@ -2,12 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Redirecting...</title>
-    <script>
-      window.location.href = "/";
-    </script>
+    <title>Page Not Found</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background: linear-gradient(135deg, #2c2c2c, #4b4b4b);
+        color: white;
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        text-align: center;
+      }
+      h1 {
+        font-size: 4rem;
+      }
+      p {
+        font-size: 1.5rem;
+      }
+      a {
+        color: #4db8ff;
+        text-decoration: none;
+      }
+    </style>
   </head>
   <body>
-    Redirecting...
+    <div class="container">
+      <h1>404</h1>
+      <p>Oops! Page not found.</p>
+      <a href="/">Go Back Home</a>
+    </div>
   </body>
 </html>
