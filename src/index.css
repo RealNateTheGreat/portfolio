@@ -1,0 +1,153 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(-10deg); }
+  40% { transform: rotate(10deg); }
+  60% { transform: rotate(-10deg); }
+  80% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes rotate-discord {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rainbow-border {
+  0% { border-color: #ff0000; }
+  17% { border-color: #ff8000; }
+  33% { border-color: #ffff00; }
+  50% { border-color: #00ff00; }
+  67% { border-color: #0000ff; }
+  83% { border-color: #8000ff; }
+  100% { border-color: #ff0000; }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-rotate-discord {
+  animation: rotate-discord 20s linear infinite;
+}
+
+.discord-bg-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0C13.432 0 0 13.432 0 30c0 16.568 13.432 30 30 30 16.568 0 30-13.432 30-30C60 13.432 46.568 0 30 0zm0 54C16.745 54 6 43.255 6 30S16.745 6 30 6s24 10.745 24 24-10.745 24-24 24z' fill='%239C92AC' fill-opacity='0.05'/%3E%3C/svg%3E");
+}
+
+.bg-grid-pattern {
+  background-size: 50px 50px;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+.server-card {
+  border: 3px solid;
+  animation: rainbow-border 8s linear infinite;
+  perspective: 1000px;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Poppins', sans-serif;
+  border-radius: 1.5rem;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.server-card:hover {
+  transform: scale(1.05);
+}
+
+.server-card:nth-child(3n+1):hover {
+  transform: scale(1.05) rotateX(15deg) rotateY(-10deg);
+}
+
+.server-card:nth-child(3n+2):hover {
+  transform: scale(1.05) rotateX(-12deg) rotateY(15deg);
+}
+
+.server-card:nth-child(3n):hover {
+  transform: scale(1.05) rotateX(10deg) rotateY(12deg);
+}
+
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+  transform: none !important;
+}
+
+/* Hide all scrollbars */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Prevent white flash during scroll */
+body {
+  background-color: rgb(17 24 39);
+}
+
+.nav-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-border {
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 2rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  width: fit-content;
+  padding: 0 1rem;
+}
+
+@media (max-width: 640px) {
+  .nav-border {
+    padding: 0 0.5rem;
+  }
+}
+
+/* Input animations */
+input:focus {
+  transform: scale(1.02);
+}
+
+.input-glow:focus {
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+}
