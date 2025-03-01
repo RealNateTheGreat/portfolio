@@ -8,6 +8,7 @@ import { DashboardLayout } from '../components/dashboard/DashboardLayout';
 import { AnnouncementsSection } from '../components/dashboard/sections/AnnouncementsSection';
 import { AnnouncementModal } from '../components/dashboard/modals/AnnouncementModal';
 import { DeleteConfirmationModal } from '../components/dashboard/modals/DeleteConfirmationModal';
+import { DeleteUserModal } from '../components/dashboard/modals/DeleteUserModal';
 import { UserModal } from '../components/dashboard/modals/UserModal';
 import { PasswordResetModal } from '../components/dashboard/modals/PasswordResetModal';
 import { RoleModal } from '../components/dashboard/modals/RoleModal';
@@ -17,7 +18,8 @@ import {
   UserCog,
   Shield,
   Loader,
-  Trash2
+  Trash2,
+  Mail
 } from 'lucide-react';
 
 // Permission settings
@@ -62,6 +64,7 @@ export default function Dashboard() {
   const [deletingAnnouncementId, setDeletingAnnouncementId] = useState<string | null>(null);
   const [deletingRoleId, setDeletingRoleId] = useState<string | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const [deletingUserEmail, setDeletingUserEmail] = useState<string | null>(null);
   
   // Form state
   const [newUser, setNewUser] = useState({ 
@@ -292,18 +295,12 @@ export default function Dashboard() {
     openModal('user');
   };
 
-  const confirmDeleteUser = (id: string) => {
-    // Fetch the user to check their role first
+  const confirmDeleteUser = (id: string, email: string) => {
+    // Find the user to confirm we can delete them
     const userToDelete = users.find(u => u.id === id);
     
     if (!userToDelete) {
       toast.error('User not found');
-      return;
-    }
-    
-    // Check if current user can manage this user
-    if (!isAdmin() && !canManageUser(userToDelete.role)) {
-      toast.error('You do not have permission to delete this user');
       return;
     }
     
@@ -312,8 +309,15 @@ export default function Dashboard() {
       toast.error('You cannot delete your own account');
       return;
     }
-
+    
+    // Check if user has permission to delete this user
+    if (!isAdmin() && !canManageUser(userToDelete.role)) {
+      toast.error('You do not have permission to delete this user');
+      return;
+    }
+    
     setDeletingUserId(id);
+    setDeletingUserEmail(email);
     openModal('deleteUser');
   };
 
@@ -371,6 +375,7 @@ export default function Dashboard() {
       toast.success('User deleted successfully');
       closeModal();
       setDeletingUserId(null);
+      setDeletingUserEmail(null);
       fetchUsers(); // Refresh the user list
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -447,7 +452,7 @@ export default function Dashboard() {
         id: editingUser.id,
         email: editingUser.email,
         display_name: editingUser.displayName,
-        role: editingUser.role
+        role: editingUser.role,
       };
       
       const success = await updateUser(updateData);
@@ -739,8 +744,8 @@ export default function Dashboard() {
         .from('roles')
         .update({
           name: editingRole.name === 'User' || editingRole.name === 'Founder' 
-                ? editingRole.name  // Don't change system role names
-                : editingRole.name,
+            ? editingRole.name // Don't change system role names
+            : editingRole.name,
           description: editingRole.description,
           permissions: editingRole.permissions,
           rank: editingRole.rank
@@ -902,32 +907,32 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-700">
-                    {users.map((user) => (
-                      <tr key={user.id} className="hover:bg-gray-800/50">
+                    {users.map((userData) => (
+                      <tr key={userData.id} className="hover:bg-gray-800/50">
                         <td className="px-4 py-3">
                           <div className="flex items-center">
                             <img
                               className="h-10 w-10 rounded-full"
-                              src={user.profile_image || "https://i.imgur.com/z8loddS.png"}
+                              src={userData.profile_image || "https://i.imgur.com/z8loddS.png"}
                               alt=""
                             />
                             <div className="ml-4">
                               <div className="text-sm font-medium text-white">
-                                {user.display_name || user.email.split('@')[0]}
+                                {userData.display_name || userData.email.split('@')[0]}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-300">
-                          {user.email}
+                          {userData.email}
                         </td>
                         <td className="px-4 py-3">
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-800 text-indigo-100">
-                            {user.role || 'User'}
+                            {userData.role || 'User'}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-300">
-                          {new Date(user.created_at).toLocaleDateString('en-US', {
+                          {new Date(userData.created_at).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric'
@@ -936,17 +941,24 @@ export default function Dashboard() {
                         <td className="px-4 py-3 text-sm text-right">
                           <div className="flex items-center justify-end space-x-2">
                             <button
-                              onClick={() => handleEditUser(user)}
+                              onClick={() => handleEditUser(userData)}
                               className="text-indigo-400 hover:text-indigo-300 p-1"
-                              disabled={!isAdmin() && !canManageUser(user.role)}
+                              disabled={!isAdmin() && !canManageUser(userData.role)}
                             >
                               Edit
                             </button>
+                            <button
+                              onClick={() => openPasswordResetModal(userData.email)}
+                              className="text-blue-400 hover:text-blue-300 p-1"
+                              disabled={!isAdmin() && !canManageUser(userData.role)}
+                            >
+                              <Mail className="w-4 h-4" />
+                            </button>
                             {(isAdmin() || hasPermission('DELETE_USERS')) && (
                               <button
-                                onClick={() => confirmDeleteUser(user.id)}
+                                onClick={() => confirmDeleteUser(userData.id, userData.email)}
                                 className="text-red-400 hover:text-red-300 p-1"
-                                disabled={user.id === user?.id || (!isAdmin() && !canManageUser(user.role))}
+                                disabled={userData.id === user?.id || (!isAdmin() && !canManageUser(userData.role))}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -1030,10 +1042,12 @@ export default function Dashboard() {
                         <div className="bg-gray-700 h-2 rounded-full flex-grow">
                           <div 
                             className="bg-indigo-500 h-2 rounded-full" 
-                            style={{ width: `${role.rank ? (role.rank/100)*100 : 0}%` }}
+                            style={{ width: `${role.rank ? (role.rank / 100) * 100 : 0}%` }}
                           ></div>
                         </div>
-                        <span className="ml-2 text-indigo-300 font-medium">{role.rank || 0}</span>
+                        <span className="ml-2 text-indigo-300 font-medium">
+                          {role.rank || 0}
+                        </span>
                       </div>
                     </div>
                     
@@ -1106,13 +1120,15 @@ export default function Dashboard() {
       />
 
       {/* User deletion confirmation modal */}
-      <DeleteConfirmationModal
+      <DeleteUserModal
         isOpen={modalType === 'deleteUser'}
         onClose={() => {
           closeModal();
           setDeletingUserId(null);
+          setDeletingUserEmail(null);
         }}
-        handleDelete={handleDeleteUser}
+        handleDeleteUser={handleDeleteUser}
+        userEmail={deletingUserEmail || undefined}
       />
       
       <PasswordResetModal
@@ -1123,7 +1139,7 @@ export default function Dashboard() {
         handleSendPasswordReset={handleSendPasswordReset}
         setPasswordResetEmail={setPasswordResetEmail}
       />
-      
+
       <RoleModal
         isOpen={modalType === 'role'}
         onClose={closeModal}
@@ -1137,7 +1153,7 @@ export default function Dashboard() {
         setEditingRole={setEditingRole}
         setNewRole={setNewRole}
       />
-      
+
       <DeleteRoleModal
         isOpen={modalType === 'deleteRole'}
         onClose={closeModal}
