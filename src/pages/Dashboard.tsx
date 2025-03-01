@@ -10,7 +10,6 @@ import { AnnouncementModal } from '../components/dashboard/modals/AnnouncementMo
 import { DeleteConfirmationModal } from '../components/dashboard/modals/DeleteConfirmationModal';
 import { DeleteUserModal } from '../components/dashboard/modals/DeleteUserModal';
 import { UserModal } from '../components/dashboard/modals/UserModal';
-import { PasswordResetModal } from '../components/dashboard/modals/PasswordResetModal';
 import { RoleModal } from '../components/dashboard/modals/RoleModal';
 import { DeleteRoleModal } from '../components/dashboard/modals/DeleteRoleModal';
 import { 
@@ -19,7 +18,7 @@ import {
   Shield,
   Loader,
   Trash2,
-  Mail
+  CogIcon
 } from 'lucide-react';
 
 // Permission settings
@@ -44,9 +43,7 @@ export default function Dashboard() {
   });
   
   // Modal state
-  const [modalType, setModalType] = useState<'user' | 'announcement' | 'deleteConfirmation' | 'passwordReset' | 'role' | 'deleteRole' | 'deleteUser' | null>(null);
-  const [sendingPasswordReset, setSendingPasswordReset] = useState(false);
-  const [passwordResetEmail, setPasswordResetEmail] = useState('');
+  const [modalType, setModalType] = useState<'user' | 'announcement' | 'deleteConfirmation' | 'role' | 'deleteRole' | 'deleteUser' | null>(null);
   
   // Data state
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -88,7 +85,7 @@ export default function Dashboard() {
   // Navigation items based on permissions
   const navigation = [
     { name: 'Global Announcements', icon: BellRing, id: 'announcements' },
-    { name: 'User Management', icon: UserCog, id: 'users', requiredPermission: 'ADD_USERS' },
+    { name: 'User Management', icon: CogIcon, id: 'users', requiredPermission: 'ADD_USERS' },
     { name: 'Role Management', icon: Shield, id: 'roles', requiredPermission: 'MANAGE_PERMISSIONS' }
   ].filter(item => !item.requiredPermission || isAdmin() || hasPermission(item.requiredPermission as Permission));
 
@@ -466,44 +463,6 @@ export default function Dashboard() {
     } catch (error) {
       console.error('Error updating user:', error);
       toast.error('Failed to update user');
-    }
-  };
-
-  const openPasswordResetModal = (email: string) => {
-    // Check if user can manage the target user
-    const targetUser = users.find(u => u.email === email);
-    if (targetUser && !isAdmin() && !canManageUser(targetUser.role)) {
-      toast.error('You do not have permission to reset password for this user');
-      return;
-    }
-    
-    setPasswordResetEmail(email);
-    openModal('passwordReset');
-  };
-
-  const handleSendPasswordReset = async () => {
-    if (!passwordResetEmail) return;
-    
-    try {
-      setSendingPasswordReset(true);
-      console.log('Sending password reset email to:', passwordResetEmail);
-      
-      const { error } = await supabaseAdmin.auth.resetPasswordForEmail(passwordResetEmail, {
-        redirectTo: `${window.location.origin}/reset-password`
-      });
-      
-      if (error) {
-        console.error('Password reset failed:', error);
-        throw error;
-      }
-      
-      toast.success('Password reset email sent successfully');
-      closeModal();
-    } catch (error) {
-      console.error('Error sending password reset:', error);
-      toast.error('Failed to send password reset email');
-    } finally {
-      setSendingPasswordReset(false);
     }
   };
 
@@ -911,11 +870,9 @@ export default function Dashboard() {
                       <tr key={userData.id} className="hover:bg-gray-800/50">
                         <td className="px-4 py-3">
                           <div className="flex items-center">
-                            <img
-                              className="h-10 w-10 rounded-full"
-                              src={userData.profile_image || "https://i.imgur.com/z8loddS.png"}
-                              alt=""
-                            />
+                            <div className="h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center">
+                              <CogIcon className="h-6 w-6 text-gray-300" />
+                            </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-white">
                                 {userData.display_name || userData.email.split('@')[0]}
@@ -946,13 +903,6 @@ export default function Dashboard() {
                               disabled={!isAdmin() && !canManageUser(userData.role)}
                             >
                               Edit
-                            </button>
-                            <button
-                              onClick={() => openPasswordResetModal(userData.email)}
-                              className="text-blue-400 hover:text-blue-300 p-1"
-                              disabled={!isAdmin() && !canManageUser(userData.role)}
-                            >
-                              <Mail className="w-4 h-4" />
                             </button>
                             {(isAdmin() || hasPermission('DELETE_USERS')) && (
                               <button
@@ -1090,7 +1040,7 @@ export default function Dashboard() {
       logout={logout}
     >
       {renderContent()}
-      
+
       {/* Modals */}
       <UserModal
         isOpen={modalType === 'user'}
@@ -1102,9 +1052,8 @@ export default function Dashboard() {
         handleCreateUser={handleCreateUser}
         setNewUser={setNewUser}
         setEditingUser={setEditingUser}
-        openPasswordResetModal={openPasswordResetModal}
       />
-      
+
       <AnnouncementModal
         isOpen={modalType === 'announcement'}
         onClose={closeModal}
@@ -1112,14 +1061,13 @@ export default function Dashboard() {
         setNewAnnouncement={setNewAnnouncement}
         handleCreateAnnouncement={handleCreateAnnouncement}
       />
-      
+
       <DeleteConfirmationModal
         isOpen={modalType === 'deleteConfirmation'}
         onClose={closeModal}
         handleDelete={handleDeleteAnnouncement}
       />
 
-      {/* User deletion confirmation modal */}
       <DeleteUserModal
         isOpen={modalType === 'deleteUser'}
         onClose={() => {
@@ -1128,16 +1076,7 @@ export default function Dashboard() {
           setDeletingUserEmail(null);
         }}
         handleDeleteUser={handleDeleteUser}
-        userEmail={deletingUserEmail || undefined}
-      />
-      
-      <PasswordResetModal
-        isOpen={modalType === 'passwordReset'}
-        onClose={closeModal}
-        passwordResetEmail={passwordResetEmail}
-        sendingPasswordReset={sendingPasswordReset}
-        handleSendPasswordReset={handleSendPasswordReset}
-        setPasswordResetEmail={setPasswordResetEmail}
+        userEmail={deletingUserEmail || ''}
       />
 
       <RoleModal
