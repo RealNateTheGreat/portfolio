@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "apply-migration": "node scripts/apply-migration.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.7",

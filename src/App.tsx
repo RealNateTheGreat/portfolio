@@ -10,9 +10,10 @@ import {
   Shield,
   User,
   BellRing,
+  X,
 } from 'lucide-react';
 import { Modal } from './components/Modal';
-import { supabase } from './lib/supabase';
+import { supabase, supabaseAdmin } from './lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Modal component for server details...
@@ -120,7 +121,7 @@ function AboutMeModal({ isOpen, onClose }: AboutMeModalProps) {
   ];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="">
+    <Modal isOpen={isOpen} onClose={onClose} title="" hideCloseButton={true}>
       <div className="space-y-8 bg-gray-900 p-8 rounded-xl">
         <div className="flex items-center space-x-6">
           <div className="relative">
@@ -169,6 +170,69 @@ function AboutMeModal({ isOpen, onClose }: AboutMeModalProps) {
               Connect on Discord
             </span>
           </a>
+          
+          <button
+            onClick={onClose}
+            className="flex items-center justify-center gap-3 px-6 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-gray-300 hover:bg-gray-800 transition-all w-full mt-2"
+          >
+            <span className="font-medium text-base sm:text-sm md:text-base">
+              Dismiss
+            </span>
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// Modal component for Announcements
+interface AnnouncementModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  announcement: any;
+}
+
+function AnnouncementModal({ isOpen, onClose, announcement }: AnnouncementModalProps) {
+  if (!isOpen || !announcement) return null;
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="" hideCloseButton={true}>
+      <div className="space-y-6 bg-gray-900 p-6 rounded-xl">
+        <div className="flex items-start">
+          <div>
+            <p className="text-gray-300 font-medium">
+              New Announcement From
+            </p>
+            <div className="flex items-center mt-2">
+              <img
+                src={announcement.created_by?.profile_image || "https://i.imgur.com/HVZOV5f.png"}
+                alt="Author"
+                className="w-10 h-10 rounded-full mr-3"
+              />
+              <div>
+                <p className="text-white font-medium">
+                  {announcement.created_by?.display_name || announcement.created_by?.email || "Admin"}
+                </p>
+                <span className="inline-block px-3 py-1 bg-blue-900/50 text-blue-300 text-xs rounded-full">
+                  {announcement.created_by?.role || "User"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-6">
+          <h3 className="text-xl font-bold text-white mb-3">{announcement.title}</h3>
+          <p className="text-gray-300">{announcement.content}</p>
+        </div>
+        
+        <div className="pt-4">
+          <button
+            onClick={onClose}
+            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white hover:bg-gray-700 transition-all"
+          >
+            <span>Dismiss</span>
+          </button>
         </div>
       </div>
     </Modal>
@@ -191,25 +255,35 @@ function App() {
   const [selectedServer, setSelectedServer] = useState<Server | null>(null);
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [activeAnnouncement, setActiveAnnouncement] = useState<any | null>(null);
   const serversRef = useRef(null);
 
   useEffect(() => {
     fetchAnnouncements();
   }, []);
 
+  // When announcements are fetched, set the first one as active
+  useEffect(() => {
+    if (announcements.length > 0 && !activeAnnouncement) {
+      setActiveAnnouncement(announcements[0]);
+    }
+  }, [announcements]);
+
   const fetchAnnouncements = async () => {
     try {
-      const { data, error } = await supabase
+      // ALWAYS use supabaseAdmin for DB operations to bypass RLS
+      const { data, error } = await supabaseAdmin
         .from('announcements')
         .select(`
           *,
-          created_by:users(email, profile_image)
+          created_by:users(email, profile_image, display_name, role)
         `)
         .eq('active', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       setAnnouncements(data || []);
+      console.log('Fetched announcements:', data);
     } catch (error) {
       console.error('Error fetching announcements:', error);
     }
@@ -222,18 +296,18 @@ function App() {
   const servers = [
     {
       id: 1,
-      name: 'Astreality',
-      role: 'Former Assistnat Community Manager',
-      members: '9,600+',
-      duration: '2+ Years',
-      banner: 'https://i.imgur.com/hQhO6LP.png',
-      icon: 'https://i.imgur.com/NWsKath.png',
-      description: "I've worked for this community for a while and helped manage the community.",
+      name: 'Broward County Roleplay',
+      role: 'Mattress Fucker',
+      members: '17,300+',
+      duration: '2+ Months',
+      banner: 'https://i.imgur.com/ksmtGPV.png',
+      icon: 'https://i.imgur.com/Eq5DLUF.png',
+      description: '( THIS IS JUST A JOKE ) >:D',
       responsibilities: [
-        'Managed staff',
-        'Made community updates',
-        'Helped with player support',
-        'Banned exploiters :P',
+        'Humps the mattress',
+        'Made mattress babies',
+        'Humps the mattress again',
+        'Made more mattress babies',
       ],
     },
   ];
@@ -263,42 +337,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Announcements Banner */}
-      <AnimatePresence>
-        {announcements.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6"
-          >
-            <div className="max-w-7xl mx-auto">
-              {announcements.map((announcement, index) => (
-                <div key={announcement.id} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <BellRing className="h-6 w-6 animate-bounce" />
-                    <div>
-                      <h3 className="font-semibold">{announcement.title}</h3>
-                      <p className="text-sm text-white/80">{announcement.content}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <img
-                      src={announcement.created_by.profile_image}
-                      alt="Author"
-                      className="w-6 h-6 rounded-full"
-                    />
-                    <span className="text-sm text-white/80">
-                      {announcement.created_by.email}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Navigation Bar */}
       <div className="nav-container">
         <nav className="nav-border">
@@ -330,102 +368,148 @@ function App() {
       {/* Hero Section */}
       <div className="relative h-[50vh] flex items-center justify-center bg-[#5865F2]/30">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="grid grid-cols-4 gap-8 opacity-5">
-              {[...Array(16)].map((_, i) => (
-                <MessageSquare
-                  key={i}
-                  className="w-24 h-24 text-white animate-[wave_2s_ease-in-out_infinite] [animation-delay:var(--delay)]"
-                  style={{ '--delay': `${i * 0.2}s` } as React.CSSProperties}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#5865F2]/10 via-[#5865F2]/5 to-gray-900"></div>
+          <div className="absolute inset-0 bg-grid-pattern opacity-30"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500 rounded-full blur-3xl opacity-20"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full blur-3xl opacity-20"></div>
         </div>
-        <div className="relative text-center text-white px-4">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-200">
-            Nathan
-          </h1>
+        <div className="relative text-center px-4 max-w-3xl mx-auto">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-5xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white"
+          >
+            Nathan's <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Portfolio</span>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-xl sm:text-lg md:text-xl lg:text-2xl text-gray-300 mb-8"
+          >
+            Developer & Community Manager
+          </motion.p>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <a 
+              href="https://discord.com/users/210768103594917888" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-[#5865F2]/20 border-2 border-[#5865F2] rounded-xl text-white hover:bg-[#5865F2]/30 transition-all flex items-center justify-center gap-2"
+            >
+              <MessageSquare className="w-5 h-5" />
+              <span>Discord</span>
+            </a>
+          </motion.div>
         </div>
       </div>
 
-      {/* Servers Section */}
-      <section
-        ref={serversRef}
-        className="relative py-20 px-4 bg-gray-900 opacity-0"
+      {/* Server Section */}
+      <div 
+        ref={serversRef} 
+        className="py-20 px-4 opacity-0 transition-opacity duration-1000"
       >
-        <div className="absolute inset-0 discord-bg-pattern opacity-5"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl animate-pulse"></div>
-        </div>
-        <div className="relative max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-white">
-            Servers I've Worked For
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
+              Discord <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Servers</span>
+            </h2>
+            <p className="text-gray-400 text-lg sm:text-base md:text-lg max-w-2xl mx-auto">
+              Communities I've managed and contributed to. Click on any server to see more details.
+            </p>
+          </div>
+
+          {/* Glowing purple element */}
+          <div className="relative mb-12">
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-600 rounded-full blur-3xl opacity-20 animate-pulse"></div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {servers.map((server) => (
               <div
                 key={server.id}
-                className="server-card bg-gray-800 overflow-hidden shadow-xl"
+                onClick={() => setSelectedServer(server)}
+                className="server-card bg-gray-800/50 backdrop-blur-sm overflow-hidden cursor-pointer"
               >
-                <div className="relative h-48">
+                <div className="relative h-40">
                   <img
                     src={server.banner}
                     alt={server.name}
                     className="w-full h-full object-cover"
-                    loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
                   <img
                     src={server.icon}
                     alt={`${server.name} icon`}
-                    className="absolute bottom-4 left-4 w-16 h-16 rounded-full border-2 border-white shadow-lg"
-                    loading="lazy"
+                    className="absolute bottom-4 left-4 w-12 h-12 rounded-full border-2 border-white shadow-lg"
                   />
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-2 text-white">
-                    {server.name}
-                  </h3>
-                  <p className="text-indigo-400 font-medium mb-4">
-                    {server.role}
-                  </p>
-                  <div className="flex flex-col gap-2 mb-6">
-                    <span className="text-sm bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-center">
+                  <h3 className="text-xl font-semibold text-white mb-1">{server.name}</h3>
+                  <p className="text-indigo-400 font-medium">{server.role}</p>
+                  
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    <span className="text-xs bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full">
                       {server.members} members
                     </span>
-                    <span className="text-sm bg-green-500/10 text-green-400 px-3 py-1 rounded-full text-center">
+                    <span className="text-xs bg-green-500/10 text-green-400 px-3 py-1 rounded-full">
                       {server.duration}
                     </span>
                   </div>
-                  <button
-                    onClick={() => setSelectedServer(server)}
-                    className="w-full inline-flex items-center justify-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                  >
-                    View Details <ExternalLink className="ml-2 w-5 h-5" />
-                  </button>
+                  
+                  <div className="mt-4 flex justify-end">
+                    <button className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+                      <span>View Details</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Footer */}
-      <footer className="py-8 bg-gray-900 text-gray-400 text-center">
-        <p>© 2025 Nathan. All rights reserved.</p>
+      <footer className="bg-gray-800 py-10 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-6 md:mb-0">
+              <h2 className="text-2xl font-bold text-white">Nathan's Portfolio</h2>
+              <p className="text-gray-400 mt-2">Developer & Community Manager</p>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-500 text-sm">© {new Date().getFullYear()} Nathan's Portfolio. All rights reserved.</p>
+            <p className="text-gray-500 text-sm mt-4 md:mt-0">Built with React & Supabase</p>
+          </div>
+        </div>
       </footer>
 
       {/* Modals */}
-      <ServerModal
+      <ServerModal 
         isOpen={selectedServer !== null}
         onClose={() => setSelectedServer(null)}
         server={selectedServer}
       />
+      
       <AboutMeModal
         isOpen={isAboutModalOpen}
         onClose={() => setIsAboutModalOpen(false)}
+      />
+
+      {/* Announcement Modal */}
+      <AnnouncementModal
+        isOpen={activeAnnouncement !== null}
+        onClose={() => setActiveAnnouncement(null)}
+        announcement={activeAnnouncement}
       />
     </div>
   );

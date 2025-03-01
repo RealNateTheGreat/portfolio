@@ -6,9 +6,10 @@ interface ModalProps {
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
+  hideCloseButton?: boolean;
 }
 
-export function Modal({ isOpen, onClose, title, children }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, hideCloseButton = false }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -65,15 +66,17 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
           ref={modalRef}
           className="relative w-full max-w-2xl bg-gray-900 border-2 border-white/20 rounded-2xl shadow-xl"
         >
-          {/* Header with sticky close buttond */}
-          <div className="sticky top-0 z-10 flex justify-end p-4 bg-gray-900 rounded-t-2xl border-b border-white/10">
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-            >
-              <X className="w-6 h-6 text-gray-400 sm:w-5 sm:h-5" />
-            </button>
-          </div>
+          {/* Header with sticky close button - only shown if hideCloseButton is false */}
+          {!hideCloseButton && (
+            <div className="sticky top-0 z-10 flex justify-end p-4 bg-gray-900 rounded-t-2xl border-b border-white/10">
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-400 sm:w-5 sm:h-5" />
+              </button>
+            </div>
+          )}
 
           {/* Content */}
           <div 

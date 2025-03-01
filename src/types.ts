@@ -1,15 +1,18 @@
 export interface User {
   id: string;
   email: string;
+  display_name?: string;
   profileImage?: string;
-  role: Role;
+  role?: string;
 }
 
 export interface Role {
+  id: string;
   name: string;
-  color: string;
-  icon: string;
+  description?: string;
   permissions: Permission[];
+  rank?: number;
+  created_at?: string;
 }
 
 export type Permission = 
@@ -26,9 +29,13 @@ export interface Announcement {
   content: string;
   created_at: string;
   active: boolean;
+  unique_id?: string;
+  updated_at?: string;
   created_by: {
     email: string;
     profile_image: string;
+    display_name?: string;
+    role?: string;
   };
 }
 
@@ -40,22 +47,51 @@ export interface Database {
         Row: {
           id: string;
           email: string;
+          display_name?: string | null;
           profile_image: string | null;
-          role: string;
           created_at: string;
+          role?: string | null;
         };
         Insert: {
           id?: string;
           email: string;
+          display_name?: string | null;
           profile_image?: string | null;
-          role?: string;
           created_at?: string;
+          role?: string | null;
         };
         Update: {
           id?: string;
           email?: string;
+          display_name?: string | null;
           profile_image?: string | null;
-          role?: string;
+          created_at?: string;
+          role?: string | null;
+        };
+      };
+      roles: {
+        Row: {
+          id: string;
+          name: string;
+          description?: string | null;
+          permissions: Permission[];
+          rank?: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          permissions: Permission[];
+          rank?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          permissions?: Permission[];
+          rank?: number;
           created_at?: string;
         };
       };
@@ -67,6 +103,8 @@ export interface Database {
           created_at: string;
           created_by: string;
           active: boolean;
+          unique_id?: string;
+          updated_at?: string;
         };
         Insert: {
           id?: string;
@@ -75,6 +113,8 @@ export interface Database {
           created_at?: string;
           created_by: string;
           active?: boolean;
+          unique_id?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
@@ -83,6 +123,8 @@ export interface Database {
           created_at?: string;
           created_by?: string;
           active?: boolean;
+          unique_id?: string;
+          updated_at?: string;
         };
       };
     };

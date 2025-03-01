@@ -6,6 +6,7 @@ import App from './App';
 import AdminLogin from './pages/AdminLogin';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
+import ResetPassword from './pages/ResetPassword';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import './index.css';
@@ -17,6 +18,7 @@ createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="/dashboard"
             element={
