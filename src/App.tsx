@@ -137,7 +137,7 @@ function AboutMeModal({ isOpen, onClose }: AboutMeModalProps) {
               Nathan
             </h3>
             <p className="text-gray-400 text-lg sm:text-base md:text-lg">
-              Full Stack Developer & Community Manager
+              Developer & Manager
             </p>
           </div>
         </div>
@@ -155,8 +155,7 @@ function AboutMeModal({ isOpen, onClose }: AboutMeModalProps) {
 
         <div className="space-y-4">
           <p className="text-gray-300 leading-relaxed text-lg sm:text-base md:text-lg">
-            I specialize in creating innovative solutions and managing thriving
-            online communities.
+            I specialize in creating discord servers and making bots etc.
           </p>
 
           <a
@@ -167,7 +166,7 @@ function AboutMeModal({ isOpen, onClose }: AboutMeModalProps) {
           >
             <MessageSquare className="w-5 h-5 sm:w-4 sm:h-4 md:w-5 md:h-5 group-hover:animate-bounce" />
             <span className="font-medium text-base sm:text-sm md:text-base">
-              Connect on Discord
+              Contact Me On Discord
             </span>
           </a>
           
@@ -298,7 +297,7 @@ function App() {
       id: 1,
       name: 'Broward County Roleplay',
       role: 'Mattress Fucker',
-      members: '17,300+',
+      members: '17,3K+',
       duration: '2+ Months',
       banner: 'https://i.imgur.com/ksmtGPV.png',
       icon: 'https://i.imgur.com/Eq5DLUF.png',
@@ -308,6 +307,23 @@ function App() {
         'Made mattress babies',
         'Humps the mattress again',
         'Made more mattress babies',
+      ],
+    },
+    {
+      id: 2,
+      name: 'Astreality',
+      role: 'Assistant Manager',
+      members: '9.6K+',
+      duration: '2+ Years',
+      banner: 'https://i.imgur.com/ksmtGPV.png',
+      icon: 'https://i.imgur.com/ZJmh2zc.png',
+      description: "I've worked for this community for a long time and I enjoyied helping the users who played the game. :P",
+      responsibilities: [
+        'Made applications',
+        'Managed staff',
+        'Moderation',
+        'Data restores',
+        'Gamenights',
       ],
     },
   ];
@@ -488,7 +504,7 @@ function App() {
           
           <div className="border-t border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-500 text-sm">© {new Date().getFullYear()} Nathan's Portfolio. All rights reserved.</p>
-            <p className="text-gray-500 text-sm mt-4 md:mt-0">Built with React & Supabase</p>
+            <p className="text-gray-500 text-sm mt-4 md:mt-0">Built by Nathan</p>
           </div>
         </div>
       </footer>
