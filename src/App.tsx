@@ -315,7 +315,7 @@ function App() {
       role: 'Assistant Manager',
       members: '9.6K+',
       duration: '2+ Years',
-      banner: 'https://i.imgur.com/ksmtGPV.png',
+      banner: 'https://i.imgur.com/SeBYdd2.png',
       icon: 'https://i.imgur.com/ZJmh2zc.png',
       description: "I've worked for this community for a long time and I enjoyied helping the users who played the game. :P",
       responsibilities: [
