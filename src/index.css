@@ -1,0 +1,278 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Exo:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap');
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+:root {
+  --anime-dark: #13111c;
+  --anime-darker: #0e0c15;
+  --anime-primary: #ec4899;
+  --anime-secondary: #a855f7;
+}
+
+@keyframes wave {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(-10deg); }
+  40% { transform: rotate(10deg); }
+  60% { transform: rotate(-10deg); }
+  80% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes sakura-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100vh) rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.animate-rotate-slow {
+  animation: rotate-slow 15s linear infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 3s linear infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.bg-anime-dark {
+  background-color: var(--anime-dark);
+}
+
+.bg-anime-darker {
+  background-color: var(--anime-darker);
+}
+
+.bg-anime-grid {
+  background-size: 50px 50px;
+  background-image: 
+    linear-gradient(to right, rgba(236, 72, 153, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(236, 72, 153, 0.05) 1px, transparent 1px);
+}
+
+.bg-anime-circle {
+  background: repeating-conic-gradient(
+    rgba(236, 72, 153, 0.2) 0deg 15deg,
+    rgba(168, 85, 247, 0.2) 15deg 30deg
+  );
+}
+
+.bg-gradient-radial {
+  background-image: radial-gradient(var(--tw-gradient-stops));
+}
+
+.shadow-glow {
+  box-shadow: 0 0 25px rgba(236, 72, 153, 0.5);
+}
+
+.sakura {
+  width: 20px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ec4899' stroke-width='1'%3E%3Cpath d='M12 5 L12 19 M5 12 L19 12 M7 7 L17 17 M7 17 L17 7'/%3E%3C/svg%3E");
+  background-size: contain;
+  opacity: 0.6;
+}
+
+.star {
+  width: 15px;
+  height: 15px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ec4899' stroke='none'%3E%3Cpath d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z'/%3E%3C/svg%3E");
+  background-size: contain;
+}
+
+/* Fonts & Typography */
+.font-anime {
+  font-family: 'Exo', sans-serif;
+  letter-spacing: 0.025em;
+  font-weight: 700;
+}
+
+.font-anime-text {
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.font-anime-cursive {
+  font-family: 'Caveat', cursive;
+}
+
+/* Cards & UI Elements */
+.anime-card {
+  border: 3px solid transparent;
+  background: linear-gradient(45deg, #13111c, #1a182b);
+  background-clip: padding-box;
+  border-radius: 1.5rem;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+  overflow: hidden;
+}
+
+.anime-card::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: linear-gradient(45deg, var(--anime-primary), var(--anime-secondary));
+  border-radius: inherit;
+  z-index: -1;
+  margin: -2px;
+  transition: opacity 0.3s ease;
+  opacity: 0.7;
+}
+
+.server-card {
+  border: 3px solid;
+  animation: rainbow-border 8s linear infinite;
+  perspective: 1000px;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Exo', sans-serif;
+  border-radius: 1.5rem;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+@keyframes rainbow-border {
+  0% { border-color: #ff0080; }
+  25% { border-color: #a855f7; }
+  50% { border-color: #3b82f6; }
+  75% { border-color: #10b981; }
+  100% { border-color: #ff0080; }
+}
+
+/* Navigation */
+.nav-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-border {
+  border: 2px solid rgba(236, 72, 153, 0.3);
+  border-radius: 2rem;
+  background-color: rgba(19, 17, 28, 0.7);
+  backdrop-filter: blur(10px);
+  width: fit-content;
+  padding: 0 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 10px rgba(236, 72, 153, 0.1);
+}
+
+@media (max-width: 640px) {
+  .nav-border {
+    padding: 0 0.5rem;
+  }
+}
+
+/* Modal Customization */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+  transform: none !important;
+  border: 2px solid rgba(236, 72, 153, 0.3);
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.2);
+}
+
+/* Hide all scrollbars */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Prevent white flash during scroll */
+body {
+  background-color: var(--anime-dark);
+  overflow-x: hidden;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Input animations */
+input:focus {
+  transform: scale(1.02);
+}
+
+.input-glow:focus {
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
+}
